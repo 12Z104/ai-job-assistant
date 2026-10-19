@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# 后端密钥文件（含 API Key，绝不提交）
+.env
+server/.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
