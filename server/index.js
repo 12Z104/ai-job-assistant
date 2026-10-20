@@ -157,6 +157,62 @@ app.post('/api/chat-stream', async (req, res) => {
   }
 })
 
+// 模块6：Agent 多步推理流式接口——分步骤思考，前端展示思考链
+app.post('/api/agent-stream', async (req, res) => {
+  try {
+    const { resume, jd } = req.body
+    if (!resume || !jd) return res.status(400).json({ error: '简历和 JD 都不能为空' })
+
+    const apiKey = process.env.LLM_API_KEY
+    if (!apiKey) return res.status(500).json({ error: '后端没配 LLM_API_KEY' })
+    const baseUrl = process.env.LLM_BASE_URL || 'https://api.deepseek.com'
+
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+
+    const upstream = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        stream: true,
+        messages: [
+          {
+            role: 'system',
+            content: `你是一个简历优化 Agent。请严格按 4 步输出，每步用【步骤N:标题】内容【/步骤】包裹，一步都不能少：
+【步骤1:解析JD】这个岗位的核心要求是什么？列 3-5 条
+【步骤2:提取素材】从用户简历中提取与JD相关的已有素材
+【步骤3:识别短板】对比JD要求，指出简历缺了什么、弱在哪
+【步骤4:修改方案】给出 3-5 条具体、可执行的简历改写建议`,
+          },
+          { role: 'user', content: `【简历】\n${resume}\n\n【岗位JD】\n${jd}` },
+        ],
+      }),
+    })
+
+    if (!upstream.ok || !upstream.body) {
+      res.write(`data: ${JSON.stringify({ error: 'DeepSeek 连接失败' })}\n\n`)
+      return res.end()
+    }
+
+    const reader = upstream.body.getReader()
+    const decoder = new TextDecoder()
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      res.write(decoder.decode(value, { stream: true }))
+    }
+    res.end()
+  } catch (err) {
+    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`)
+    res.end()
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`后端已启动: http://localhost:${PORT}`)
 })
