@@ -2,9 +2,10 @@ interface HomeProps {
   onOpenAnalyze: () => void
   onOpenRewrite: () => void
   onOpenAgent: () => void
+  onOpenInterview: () => void
 }
 
-export default function Home({ onOpenAnalyze, onOpenRewrite, onOpenAgent }: HomeProps) {
+export default function Home({ onOpenAnalyze, onOpenRewrite, onOpenAgent, onOpenInterview }: HomeProps) {
   const cardStyle = (clickable: boolean) => ({
     background: 'var(--card)', borderRadius: 16, padding: 24,
     cursor: clickable ? 'pointer' : 'default',
@@ -27,7 +28,7 @@ export default function Home({ onOpenAnalyze, onOpenRewrite, onOpenAgent }: Home
       <div className="fade-in">
         <h1 style={{ fontSize: 32, margin: '0 0 8px', letterSpacing: '-0.5px' }}>AI 求职助手</h1>
         <p style={{ color: 'var(--text-secondary)', margin: '0 0 40px' }}>
-          把简历和 JD 喂给 AI，拿到匹配分析和改写建议
+          把简历和 JD 喂给 AI，拿到匹配分析、改写建议和模拟面试
         </p>
       </div>
 
@@ -57,18 +58,19 @@ export default function Home({ onOpenAnalyze, onOpenRewrite, onOpenAgent }: Home
           <div style={{ fontSize: 36, marginBottom: 12 }}>🧠</div>
           <h3 style={{ margin: '0 0 6px' }}>简历优化 Agent</h3>
           <p style={{ color: 'var(--text-secondary)', fontSize: 14, margin: '0 0 14px', lineHeight: 1.5 }}>
-            多步推理：解析JD → 提取素材 → 识别短板 → 修改方案，思考链可视化
+            多步推理：解析JD → 提取素材 → 识别短板 → 修改方案
           </p>
           <span style={{ fontSize: 12, color: '#059669', background: '#d1fae5', padding: '3px 12px', borderRadius: 20 }}>已上线</span>
         </div>
 
-        <div className="fade-in" style={cardStyle(false)}>
+        <div onClick={onOpenInterview} className="fade-in" style={cardStyle(true)}
+          onMouseEnter={(e) => onEnter(e, 'rgba(245,158,11,0.18)')} onMouseLeave={onLeave}>
           <div style={{ fontSize: 36, marginBottom: 12 }}>🎤</div>
           <h3 style={{ margin: '0 0 6px' }}>AI 模拟面试</h3>
           <p style={{ color: 'var(--text-secondary)', fontSize: 14, margin: '0 0 14px', lineHeight: 1.5 }}>
-            针对你的简历和 JD，模拟面试官连环追问
+            根据简历和 JD 模拟面试官连环追问，结束后综合点评
           </p>
-          <span style={{ fontSize: 12, color: 'var(--text-secondary)', background: '#f1f5f9', padding: '3px 12px', borderRadius: 20 }}>即将上线</span>
+          <span style={{ fontSize: 12, color: '#d97706', background: '#fef3c7', padding: '3px 12px', borderRadius: 20 }}>已上线</span>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Panel from './components/Panel'
 import ResumeEditor from './pages/ResumeEditor'
 import JdEditor from './pages/JdEditor'
@@ -6,19 +6,22 @@ import ResultPanel from './pages/ResultPanel'
 import Home from './pages/Home'
 import RewritePage from './pages/RewritePage'
 import AgentPage from './pages/AgentPage'
+import InterviewPage from './pages/InterviewPage'
 import { useStreaming } from './hooks/useStreaming'
+import { storage } from './services/storage'
 
 function App() {
-  const [view, setView] = useState<'home' | 'analyze' | 'rewrite' | 'agent'>('home')
-  const [resumeText, setResumeText] = useState('')
-  const [jdText, setJdText] = useState('')
+  const [view, setView] = useState<'home' | 'analyze' | 'rewrite' | 'agent' | 'interview'>('home')
+  const [resumeText, setResumeText] = useState(() => storage.loadResume())
+  const [jdText, setJdText] = useState(() => storage.loadJd())
   const { result, loading, start, stop } = useStreaming()
 
+  // 模块8：自动保存到 localStorage
+  useEffect(() => { storage.saveResume(resumeText) }, [resumeText])
+  useEffect(() => { storage.saveJd(jdText) }, [jdText])
+
   function handleAnalyze() {
-    if (!resumeText.trim() || !jdText.trim()) {
-      alert('请先把简历和 JD 都贴进去')
-      return
-    }
+    if (!resumeText.trim() || !jdText.trim()) { alert('请先把简历和 JD 都贴进去'); return }
     start({ resume: resumeText, jd: jdText })
   }
 
@@ -28,12 +31,13 @@ function App() {
         onOpenAnalyze={() => setView('analyze')}
         onOpenRewrite={() => setView('rewrite')}
         onOpenAgent={() => setView('agent')}
+        onOpenInterview={() => setView('interview')}
       />
     )
   }
-
   if (view === 'rewrite') return <RewritePage />
   if (view === 'agent') return <AgentPage />
+  if (view === 'interview') return <InterviewPage />
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: 24 }}>

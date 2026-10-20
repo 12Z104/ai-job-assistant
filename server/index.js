@@ -213,6 +213,65 @@ app.post('/api/agent-stream', async (req, res) => {
   }
 })
 
+// 模块7：AI 模拟面试流式接口——多轮对话
+app.post('/api/interview-stream', async (req, res) => {
+  try {
+    const { resume, jd, messages } = req.body
+    if (!resume || !jd || !Array.isArray(messages)) {
+      return res.status(400).json({ error: '参数不完整' })
+    }
+    const apiKey = process.env.LLM_API_KEY
+    if (!apiKey) return res.status(500).json({ error: '后端没配 LLM_API_KEY' })
+    const baseUrl = process.env.LLM_BASE_URL || 'https://api.deepseek.com'
+
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+
+    const upstream = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        stream: true,
+        messages: [
+          {
+            role: 'system',
+            content: `你是一个严格但友好的前端面试官。根据候选人简历和岗位JD进行模拟面试。
+规则：
+1. 每次只问一个问题，不要一次问多个
+2. 根据候选人的回答追问细节，像真实面试一样
+3. 如果候选人回答得很肤浅，要求他举具体例子
+4. 面试大约5-8个问题后，候选人说"结束"时，输出【面试结束】然后给出综合点评（优点/不足/改进建议）
+候选人简历：${resume}
+岗位JD：${jd}`,
+          },
+          ...messages,
+        ],
+      }),
+    })
+
+    if (!upstream.ok || !upstream.body) {
+      res.write(`data: ${JSON.stringify({ error: 'DeepSeek 连接失败' })}\n\n`)
+      return res.end()
+    }
+    const reader = upstream.body.getReader()
+    const decoder = new TextDecoder()
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      res.write(decoder.decode(value, { stream: true }))
+    }
+    res.end()
+  } catch (err) {
+    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`)
+    res.end()
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`后端已启动: http://localhost:${PORT}`)
 })
