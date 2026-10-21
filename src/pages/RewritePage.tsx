@@ -13,7 +13,7 @@ function renderWithHighlights(text: string) {
       parts.push({ text: text.slice(lastIndex, match.index), type: 'normal' })
     }
     parts.push({
-      text: match[1] !== undefined ? match[1] : match[2],
+      text: match[1] ?? match[2] ?? '',
       type: match[1] !== undefined ? 'green' : 'yellow',
     })
     lastIndex = regex.lastIndex

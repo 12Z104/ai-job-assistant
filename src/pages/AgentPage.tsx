@@ -14,9 +14,9 @@ function parseSteps(raw: string): Step[] {
   let match
   while ((match = regex.exec(raw)) !== null) {
     steps.push({
-      num: parseInt(match[1]),
-      title: match[2],
-      content: match[3].trim(),
+      num: parseInt(match[1] ?? '0'),
+      title: match[2] ?? '',
+      content: (match[3] ?? '').trim(),
     })
   }
   return steps
