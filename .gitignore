@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# WorkBuddy 工作区数据（记忆/日志），不入库
+.workbuddy/
+
 # 后端密钥文件（含 API Key，绝不提交）
 .env
 server/.env

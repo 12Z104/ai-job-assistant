@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>简刻 · 设计风格样片</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    background:#F2F3F5;color:#14161A;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- 选择器 ---------- */
+  .picker{
+    position:sticky;top:0;z-index:60;
+    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+    padding:12px 24px;background:rgba(255,255,255,.92);
+    backdrop-filter:blur(14px);border-bottom:1px solid #E6E7EB;
+  }
+  .picker .title{font-size:14px;font-weight:600;letter-spacing:.01em;white-space:nowrap}
+  .picker .title span{font-weight:400;color:#8A8F99;margin-left:8px;font-size:12px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab{
+    display:flex;align-items:center;gap:8px;
+    padding:7px 14px;border-radius:999px;border:1px solid #E1E3E8;
+    background:#fff;color:#3A3F49;font-size:13px;cursor:pointer;
+    transition:background .18s ease,color .18s ease,border-color .18s ease,transform .18s ease;
+  }
+  .tab:hover{transform:translateY(-1px);border-color:#C9CDD6}
+  .tab[aria-selected="true"]{background:#14161A;color:#fff;border-color:#14161A}
+  .tab .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .tab .rec{font-size:10px;padding:1px 6px;border-radius:999px;background:#EAF1FF;color:#2A54D8;font-weight:500}
+  .tab[aria-selected="true"] .rec{background:rgba(255,255,255,.18);color:#fff}
+  .replay{
+    margin-left:auto;padding:7px 16px;border-radius:999px;border:1px solid #14161A;
+    background:transparent;color:#14161A;font-size:13px;cursor:pointer;
+    transition:background .18s ease,color .18s ease;
+  }
+  .replay:hover{background:#14161A;color:#fff}
+
+  /* ---------- 舞台容器 ---------- */
+  .wrap{padding:22px 24px 40px}
+  .frame{
+    max-width:1240px;margin:0 auto;border-radius:18px;overflow:hidden;
+    border:1px solid #E2E4E9;background:#fff;
+  }
+  .stage{overflow-x:auto}
+  .stage-inner{min-width:980px}
+
+  /* ---------- 通用 mock 骨架（读样式变量） ---------- */
+  .stage{
+    --dur-fast:.12s; --dur-base:.2s; --dur-slow:.5s;
+    --ease:cubic-bezier(.2,.8,.2,1);
+    --r:8px; --r-lg:12px;
+    --bg:#F6F7F9; --surface:#fff; --line:#E3E6EB;
+    --ink:#0F172A; --ink2:#64748B; --ink3:#94A3B8;
+    --accent:#3B5BDB; --accent-ink:#fff; --accent-soft:#EDF1FE;
+    --shadow:none; --shadow-hover:none;
+    --brand-font:inherit; --num-font:inherit;
+    --weight-title:600; --tracking:-.01em;
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    transition:background .3s ease;
+  }
+
+  .hero{padding:44px 48px 28px;display:flex;align-items:flex-end;justify-content:space-between;gap:32px}
+  .hero h1{
+    margin:0 0 10px;font-size:36px;line-height:1.25;letter-spacing:var(--tracking);
+    font-weight:var(--weight-title);font-family:var(--brand-font);
+  }
+  .hero h1 em{font-style:normal}
+  .hero p{margin:0;font-size:14px;line-height:1.7;color:var(--ink2);max-width:520px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);
+    margin-bottom:16px;letter-spacing:.06em;text-transform:uppercase;
+  }
+  .eyebrow i{width:18px;height:1px;background:var(--ink3);display:inline-block;font-style:normal}
+  .hero-actions{display:flex;gap:10px;flex-shrink:0}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    height:36px;padding:0 16px;border-radius:var(--r);
+    font-size:13px;font-family:inherit;cursor:pointer;border:1px solid transparent;
+    transition:transform var(--dur-fast) var(--ease),background var(--dur-base) ease,
+               box-shadow var(--dur-base) ease,border-color var(--dur-base) ease,color var(--dur-base) ease;
+  }
+  .btn:active{transform:translateY(1px) scale(.99)}
+  .btn-primary{background:var(--accent);color:var(--accent-ink)}
+  .btn-primary:hover{filter:brightness(.94);box-shadow:var(--shadow-hover)}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--ink3);background:var(--surface)}
+  .btn-quiet{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+  .btn-quiet:hover{filter:brightness(.96)}
+  .btn-lg{height:42px;padding:0 22px;font-size:14px}
+
+  .workspace{
+    display:grid;grid-template-columns:248px minmax(340px,1fr) 320px;
+    gap:16px;padding:8px 48px 28px;align-items:stretch;
+  }
+  .side{display:flex;flex-direction:column}
+  .side .side-list{flex:1}
+  .result{align-self:start}
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+    box-shadow:var(--shadow);position:relative;
+  }
+  .card-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:14px 16px;border-bottom:1px solid var(--line);
+  }
+  .card-head h3{margin:0;font-size:13px;font-weight:600;letter-spacing:.01em}
+  .card-body{padding:16px}
+
+  /* 左：简历列表 */
+  .side-list{display:flex;flex-direction:column;gap:6px;padding:12px}
+  .resume-item{
+    padding:10px 12px;border-radius:calc(var(--r) - 2px);cursor:pointer;
+    display:flex;flex-direction:column;gap:4px;
+    transition:background var(--dur-base) ease,transform var(--dur-fast) var(--ease);
+  }
+  .resume-item b{font-size:13px;font-weight:500}
+  .resume-item span{font-size:11px;color:var(--ink3)}
+  .resume-item:hover{background:var(--accent-soft);transform:translateX(2px)}
+  .resume-item.on{background:var(--accent-soft)}
+  .resume-item.on b{color:var(--accent)}
+  .new-btn{
+    margin:6px 12px 12px;height:34px;border-radius:calc(var(--r) - 2px);
+    border:1px dashed var(--line);background:transparent;color:var(--ink2);
+    font-size:12px;cursor:pointer;font-family:inherit;
+    transition:border-color var(--dur-base) ease,color var(--dur-base) ease,background var(--dur-base) ease;
+  }
+  .new-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+  .pill{
+    font-size:11px;padding:1px 7px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent);font-family:var(--num-font);
+  }
+
+  /* 中：JD + 流式 */
+  .jd-text{
+    font-size:13px;line-height:1.75;color:var(--ink2);
+    background:color-mix(in srgb,var(--bg) 60%,transparent);
+    border-radius:calc(var(--r) - 2px);padding:14px;min-height:88px;
+  }
+  .jd-text strong{color:var(--ink);font-weight:500}
+  .tag{
+    font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);
+    color:var(--ink2);white-space:nowrap;
+  }
+  .actions{display:flex;gap:8px;padding:0 16px 16px}
+
+  .stream-text{font-size:13px;line-height:1.85;color:var(--ink);margin:0;min-height:96px}
+  .caret{
+    display:inline-block;width:2px;height:13px;background:var(--accent);
+    vertical-align:-2px;margin-left:2px;animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0}}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--accent)}
+  .live i{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+  /* 右：结果 */
+  .score-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 16px 8px}
+  .ring{width:132px;height:132px;transform:rotate(-90deg)}
+  .ring circle{fill:none;stroke-width:8}
+  .ring .bgc{stroke:color-mix(in srgb,var(--line) 70%,transparent)}
+  .ring .fgc{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;
+    transition:stroke-dashoffset 1.15s var(--ease)}
+  .score-num{
+    position:absolute;top:20px;left:0;right:0;height:132px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:var(--num-font);font-size:40px;font-weight:500;letter-spacing:-.02em;
+  }
+  .score-num small{font-size:11px;color:var(--ink3);font-weight:400;margin-top:2px;letter-spacing:.08em}
+  .score-pos{position:relative}
+
+  .bars{display:flex;flex-direction:column;gap:12px;padding:16px}
+  .bar-row{display:flex;flex-direction:column;gap:6px}
+  .bar-top{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2)}
+  .bar-top b{font-family:var(--num-font);font-weight:500;color:var(--ink)}
+  .bar-track{height:4px;border-radius:999px;background:color-mix(in srgb,var(--line) 75%,transparent);overflow:hidden}
+  .bar-fill{height:100%;width:0;border-radius:999px;background:var(--accent);
+    transition:width .9s var(--ease)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 16px}
+  .chip{
+    font-size:11px;padding:5px 10px;border-radius:999px;
+    background:color-mix(in srgb,var(--accent-soft) 80%,transparent);color:var(--accent);
+    transition:transform var(--dur-fast) var(--ease);
+  }
+  .chip:hover{transform:translateY(-1px)}
+
+  /* 组件样例条 */
+  .tokens{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:16px 48px 30px;border-top:1px solid var(--line);
+  }
+  .tokens .label{font-size:11px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin-right:6px}
+  .input-demo{
+    height:34px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r);
+    background:var(--surface);display:flex;align-items:center;font-size:12px;color:var(--ink3);
+    min-width:170px;transition:border-color var(--dur-base) ease,box-shadow var(--dur-base) ease;
+  }
+  .input-demo:focus-within,.input-demo:hover{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+  /* 入场动效 */
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes fadein{from{opacity:0}to{opacity:1}}
+  .stage.play .anim{animation:rise .56s var(--ease) backwards}
+  .stage.play .d1{animation-delay:.02s}
+  .stage.play .d2{animation-delay:.08s}
+  .stage.play .d3{animation-delay:.14s}
+  .stage.play .d4{animation-delay:.2s}
+  .stage.play .hero h1{animation:fadein .7s var(--ease) backwards}
+  .stage.play .hero p{animation:fadein .7s .1s var(--ease) backwards}
+  @media (prefers-reduced-motion: reduce){
+    .stage.play .anim,.stage.play .hero h1,.stage.play .hero p{animation:none}
+    .ring .fgc,.bar-fill{transition:none}
+  }
+  .stage.no-motion .anim,.stage.no-motion .hero h1,.stage.no-motion .hero p{animation:none}
+  .stage.no-motion .ring .fgc,.stage.no-motion .bar-fill{transition:none}
+  .stage.no-motion .caret{animation:none}
+
+  /* ================= A · 纸感极简 ================= */
+  .stage[data-style="paper"]{
+    --bg:#F7F6F1; --surface:#FFFFFF; --line:#E6E3D9;
+    --ink:#1A1A17; --ink2:#6E6B62; --ink3:#9C988C;
+    --accent:#2E5B4C; --accent-ink:#FFFFFF; --accent-soft:#E9EFEA;
+    --r:4px; --r-lg:4px;
+    --shadow:none; --shadow-hover:0 8px 24px rgba(46,91,76,.14);
+    --num-font:Georgia,'Times New Roman',serif;
+    --weight-title:400; --tracking:.01em;
+  }
+  .stage[data-style="paper"] .hero h1{
+    font-size:38px;line-height:1.4;letter-spacing:.06em;
+    font-family:"Songti SC",Georgia,serif;
+  }
+  .stage[data-style="paper"] .hero h1 em{font-style:normal;color:var(--accent)}
+  .stage[data-style="paper"] .card{border-radius:2px;border-color:var(--line)}
+  .stage[data-style="paper"] .card-head{border-bottom:1px solid var(--line);padding:16px 18px}
+  .stage[data-style="paper"] .card-head h3{letter-spacing:.1em;font-size:11px;font-weight:500;color:var(--ink2)}
+  .stage[data-style="paper"] .btn{border-radius:2px;letter-spacing:.08em;font-size:12px}
+  .stage[data-style="paper"] .hero .eyebrow{letter-spacing:.22em;font-size:10px}
+  .stage[data-style="paper"] .score-num{font-family:Georgia,serif;font-weight:400;font-size:46px}
+  .stage[data-style="paper"] .ring .fgc{stroke-width:4;stroke-linecap:butt}
+  .stage[data-style="paper"] .ring .bgc{stroke-width:1}
+  .stage[data-style="paper"] .bar-track{height:2px;border-radius:0}
+  .stage[data-style="paper"] .bar-fill{border-radius:0}
+  .stage[data-style="paper"] .chip{border-radius:2px;background:transparent;border:1px solid var(--line);color:var(--ink2)}
+  .stage[data-style="paper"] .jd-text{border-radius:0;border-left:2px solid var(--line);background:transparent;padding-left:16px}
+  .stage[data-style="paper"] .resume-item{border-radius:2px}
+  .stage[data-style="paper"] .pill{border-radius:2px}
+  .stage[data-style="paper"]::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(26,26,23,.05) 1px,transparent 1px);
+    background-size:4px 4px;opacity:.5;
+  }
+  .stage[data-style="paper"]{position:relative}
+
+  /* ================= B · 工具理性（推荐） ================= */
+  .stage[data-style="utility"]{
+    --bg:#F5F6F8; --surface:#FFFFFF; --line:#E4E7EC;
+    --ink:#0D1117; --ink2:#5B6472; --ink3:#98A2B3;
+    --accent:#3B5BDB; --accent-ink:#FFFFFF; --accent-soft:#EDF1FE;
+    --r:6px; --r-lg:8px;
+    --shadow:0 1px 2px rgba(16,24,40,.04);
+    --shadow-hover:0 6px 18px rgba(59,91,219,.16);
+    --num-font:'SF Mono',ui-monospace,Consolas,monospace;
+    --weight-title:600; --tracking:-.025em;
+    font-variant-numeric:tabular-nums;
+  }
+  .stage[data-style="utility"] .hero{border-bottom:1px solid var(--line);background:var(--surface)}
+  .stage[data-style="utility"] .hero h1{font-size:34px}
+  .stage[data-style="utility"] .hero h1 em{color:var(--accent)}
+  .stage[data-style="utility"] .eyebrow{text-transform:none;letter-spacing:.02em;font-size:12px}
+  .stage[data-style="utility"] .eyebrow b{
+    background:var(--accent-soft);color:var(--accent);font-weight:500;
+    padding:2px 8px;border-radius:4px;font-size:11px;
+  }
+  .stage[data-style="utility"] .card-head{padding:11px 14px;background:color-mix(in srgb,var(--bg) 45%,#fff)}
+  .stage[data-style="utility"] .workspace{gap:12px;padding-top:16px}
+  .stage[data-style="utility"] .btn{font-weight:500}
+  .stage[data-style="utility"] .score-num{font-size:38px;font-weight:600}
+  .stage[data-style="utility"] .tokens{background:var(--surface)}
+
+  /* ================= C · 柔和微光 ================= */
+  .stage[data-style="soft"]{
+    --bg:#F4F6FF; --surface:rgba(255,255,255,.72); --line:rgba(108,92,231,.14);
+    --ink:#1B1B2F; --ink2:#63637D; --ink3:#9A9AB2;
+    --accent:#6C5CE7; --accent-ink:#FFFFFF; --accent-soft:#EDEAFF;
+    --r:10px; --r-lg:20px;
+    --shadow:0 12px 34px rgba(108,92,231,.08);
+    --shadow-hover:0 18px 44px rgba(108,92,231,.22);
+    --weight-title:600; --tracking:-.03em;
+    position:relative;overflow:hidden;
+  }
+  .stage[data-style="soft"]::before{
+    content:"";position:absolute;width:520px;height:520px;border-radius:50%;
+    background:radial-gradient(circle,#C9BEFF 0%,rgba(201,190,255,0) 70%);
+    top:-180px;left:-120px;filter:blur(30px);opacity:.55;
+    animation:float1 14s ease-in-out infinite;
+  }
+  .stage[data-style="soft"]::after{
+    content:"";position:absolute;width:440px;height:440px;border-radius:50%;
+    background:radial-gradient(circle,#A9D4FF 0%,rgba(169,212,255,0) 70%);
+    bottom:-160px;right:-100px;filter:blur(30px);opacity:.5;
+    animation:float2 16s ease-in-out infinite;
+  }
+  @keyframes float1{50%{transform:translate(60px,40px) scale(1.08)}}
+  @keyframes float2{50%{transform:translate(-70px,-30px) scale(1.1)}}
+  .stage[data-style="soft"] .hero{position:relative;z-index:1}
+  .stage[data-style="soft"] .workspace{position:relative;z-index:1}
+  .stage[data-style="soft"] .tokens{position:relative;z-index:1;border-top-color:rgba(108,92,231,.12)}
+  .stage[data-style="soft"] .card{
+    backdrop-filter:blur(18px);
+    background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(255,255,255,.62));
+    border:1px solid rgba(255,255,255,.7);
+    box-shadow:0 12px 34px rgba(108,92,231,.08),0 1px 0 rgba(255,255,255,.8) inset;
+    transition:transform .3s var(--ease),box-shadow .3s var(--ease);
+  }
+  .stage[data-style="soft"] .card:hover{transform:translateY(-3px);box-shadow:0 22px 48px rgba(108,92,231,.16)}
+  .stage[data-style="soft"] .hero h1{
+    background:linear-gradient(92deg,#1B1B2F 20%,#6C5CE7 90%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .stage[data-style="soft"] .btn-primary{
+    background:linear-gradient(135deg,#7B6CF6,#5B4BE0);
+    box-shadow:0 8px 20px rgba(108,92,231,.32);
+  }
+  .stage[data-style="soft"] .btn{border-radius:999px}
+  .stage[data-style="soft"] .chip{border-radius:999px}
+  .stage[data-style="soft"] .bgc{stroke-width:10}
+
+  /* ---------- 说明 ---------- */
+  .notes{max-width:1240px;margin:16px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .note{background:#fff;border:1px solid #E6E7EB;border-radius:12px;padding:14px 16px}
+  .note h4{margin:0 0 6px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .note h4 i{width:8px;height:8px;border-radius:50%;display:inline-block;font-style:normal}
+  .note p{margin:0;font-size:12px;line-height:1.7;color:#6B7280}
+  .note code{font-size:11px;background:#F3F4F6;padding:1px 5px;border-radius:4px;color:#374151}
+</style>
+</head>
+<body>
+
+<div class="picker">
+  <div class="title">简刻 · 风格样片<span>点标签切换，动效可重播</span></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-pick="paper" aria-selected="false">
+      <span class="dot" style="background:#2E5B4C"></span>A 纸感极简
+    </button>
+    <button class="tab" role="tab" data-pick="utility" aria-selected="true">
+      <span class="dot" style="background:#3B5BDB"></span>B 工具理性
+      <span class="rec">推荐</span>
+    </button>
+    <button class="tab" role="tab" data-pick="soft" aria-selected="false">
+      <span class="dot" style="background:#6C5CE7"></span>C 柔和微光
+    </button>
+  </div>
+  <button class="replay" id="replay">重播动效</button>
+</div>
+
+<div class="wrap">
+  <div class="frame">
+    <div class="stage" id="stage" data-style="utility">
+      <div class="stage-inner">
+
+        <div class="hero">
+          <div>
+            <div class="eyebrow"><i></i><span id="eyebrow">RESUME × JD · 结构化匹配</span></div>
+            <h1 id="heroTitle">把简历改成<br><em>岗位真正想要的样子</em></h1>
+            <p>贴一份简历、一段 JD。三十秒内拿到匹配分、差距清单和可采纳的改写句——改完再测一次，看分数怎么变。</p>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn-ghost btn-lg">导入已有简历</button>
+            <button class="btn btn-primary btn-lg">开始匹配分析</button>
+          </div>
+        </div>
+
+        <div class="workspace">
+          <aside class="card anim d1 side">
+            <div class="card-head">
+              <h3>我的简历</h3><span class="pill">3</span>
+            </div>
+            <div class="side-list">
+              <div class="resume-item on"><b>前端实习 · v3</b><span>2 分钟前 · 已优化</span></div>
+              <div class="resume-item"><b>通用版 · v2</b><span>昨天 · 原始稿</span></div>
+              <div class="resume-item"><b>后端方向 · v1</b><span>10 月 20 日</span></div>
+            </div>
+            <button class="new-btn">+ 新建简历</button>
+          </aside>
+
+          <main style="display:flex;flex-direction:column;gap:12px">
+            <section class="card anim d2">
+              <div class="card-head">
+                <h3>岗位 JD</h3>
+                <span class="tag">字节跳动 · 前端开发实习</span>
+              </div>
+              <div style="padding:14px 16px 12px">
+                <div class="jd-text">
+                  <strong>职责：</strong>负责增长业务前端开发，参与组件库建设与性能优化。<br>
+                  <strong>要求：</strong>熟悉 <strong>React / TypeScript</strong>，了解构建工具与工程化，有可量化的性能优化经验者优先。
+                </div>
+              </div>
+              <div class="actions">
+                <button class="btn btn-primary">开始匹配分析</button>
+                <button class="btn btn-ghost">粘贴 JD</button>
+              </div>
+            </section>
+
+            <section class="card anim d3">
+              <div class="card-head">
+                <h3>AI 分析</h3>
+                <span class="live"><i></i>实时生成</span>
+              </div>
+              <div class="card-body">
+                <p class="stream-text" id="streamText"></p><span class="caret" id="caret"></span>
+              </div>
+            </section>
+          </main>
+
+          <aside class="card anim d4 result">
+            <div class="card-head"><h3>匹配结果</h3><span class="tag">渲染完成</span></div>
+            <div class="score-pos">
+              <div class="score-wrap">
+                <svg class="ring" viewBox="0 0 120 120">
+                  <circle class="bgc" cx="60" cy="60" r="52"></circle>
+                  <circle class="fgc" id="ringFg" cx="60" cy="60" r="52"></circle>
+                </svg>
+              </div>
+              <div class="score-num">78<small>匹配度 / 100</small></div>
+            </div>
+            <div class="bars">
+              <div class="bar-row">
+                <div class="bar-top"><span>技术栈匹配</span><b>82</b></div>
+                <div class="bar-track"><div class="bar-fill" style="--w:82%"></div></div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-top"><span>项目经验</span><b>71</b></div>
+                <div class="bar-track"><div class="bar-fill" style="--w:71%"></div></div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-top"><span>工程化表达</span><b>64</b></div>
+                <div class="bar-track"><div class="bar-fill" style="--w:64%"></div></div>
+              </div>
+            </div>
+            <div class="chips">
+              <span class="chip">补齐构建链路</span>
+              <span class="chip">量化首屏耗时</span>
+              <span class="chip">补 1 条协作案例</span>
+            </div>
+          </aside>
+        </div>
+
+        <div class="tokens">
+          <span class="label">组件样例</span>
+          <button class="btn btn-primary">主按钮</button>
+          <button class="btn btn-ghost">次按钮</button>
+          <button class="btn btn-quiet">轻按钮</button>
+          <div class="input-demo">输入框 · 聚焦有三像素光环</div>
+          <span class="chip">标签</span>
+          <span class="pill">badge</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const ring = document.getElementById('ringFg');
+  const bars = document.querySelectorAll('.bar-fill');
+  const streamEl = document.getElementById('streamText');
+  const TYPING = '这个岗位最看重工程化与性能优化。你的两个项目有可量化成果，但缺少对构建链路的描述——建议把「首屏 1.2s → 0.6s」的优化过程补进项目亮点。';
+  const RING_C = 327;
+  const SCORE = 0.78;
+
+  let typingTimer = null;
+
+  function resetAnimations() {
+    stage.classList.remove('play');
+    ring.style.strokeDashoffset = RING_C;
+    bars.forEach(b => { b.style.width = '0%'; });
+    streamEl.textContent = '';
+    if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
+  }
+
+  function typeText() {
+    let i = 0;
+    const step = () => {
+      if (i > TYPING.length) return;
+      streamEl.textContent = TYPING.slice(0, i);
+      i += 1;
+      typingTimer = setTimeout(step, 26);
+    };
+    step();
+  }
+
+  function play() {
+    resetAnimations();
+    void stage.offsetWidth;
+    stage.classList.add('play');
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        ring.style.strokeDashoffset = String(RING_C * (1 - SCORE));
+        bars.forEach((b, idx) => {
+          setTimeout(() => { b.style.width = getComputedStyle(b).getPropertyValue('--w').trim(); }, idx * 90);
+        });
+        typeText();
+      }, 260);
+    });
+  }
+
+  const NOTES = {
+    paper: {
+      dot: '#2E5B4C',
+      name: 'A 纸感极简',
+      desc: '暖白纸面 + 墨绿单点 + 宋体标题。圆角近乎直角，阴影几乎为零，靠留白和细线建立秩序。动效慢而轻：600-800ms 缓入，分数环描边生长。适合"安静、克制、有品味"的叙事，辨识度最高。',
+      risk: '三栏工作台会浪费空间；宋体在 Windows 回退需注意；对排版基本功要求最高。'
+    },
+    utility: {
+      dot: '#3B5BDB',
+      name: 'B 工具理性',
+      desc: '冷白底 + 蓝主色 + 6px 小圆角 + 等宽数字。信息密度高，线框清晰，几乎不用阴影。动效 120-200ms 干脆利落，只有状态反馈不做装饰。最贴合"专业工具"气质，也最容易讲清工程化取舍。',
+      risk: '偏离"惊艳"，需要在细节（对齐、字重、数字排布）上做得很干净才显高级。'
+    },
+    soft: {
+      dot: '#6C5CE7',
+      name: 'C 柔和微光',
+      desc: '淡紫蓝底 + 玻璃拟态卡片 + 20px 大圆角 + 缓慢漂浮的光斑。动效最丰富：卡片浮起、光斑位移、渐变文字。第一眼最像"AI 产品"，情绪亲和。',
+      risk: '与大量 AI 产品同质；玻璃质感在低端设备/滚动时掉帧；长文本阅读舒适度最差。'
+    }
+  };
+
+  function renderNotes(key) {
+    const n = NOTES[key];
+    document.getElementById('notes').innerHTML =
+      '<div class="note"><h4><i style="background:' + n.dot + '"></i>' + n.name + '</h4><p>' + n.desc + '</p></div>' +
+      '<div class="note"><h4>代价与风险</h4><p>' + n.risk + '</p></div>' +
+      '<div class="note"><h4>落地成本</h4><p>' +
+        (key === 'paper'
+          ? '需要自定义排版规则（字体栈、行高、细线），组件复用成本中等。'
+          : key === 'utility'
+          ? '与现有蓝白结构最接近，改造量最小，可直接映射到设计 token。'
+          : '需要 blur / 渐变 / 阴影三层叠加，性能与一致性维护成本最高。') +
+      '</p></div>';
+  }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => setStyle(tab.dataset.pick));
+  });
+
+  function setStyle(key) {
+    document.querySelectorAll('.tab').forEach(t => {
+      t.setAttribute('aria-selected', String(t.dataset.pick === key));
+    });
+    stage.dataset.style = key;
+    renderNotes(key);
+    play();
+  }
+
+  document.getElementById('replay').addEventListener('click', play);
+  const params = new URLSearchParams(location.search);
+  const initial = params.get('style');
+  if (params.get('static') === '1') stage.classList.add('no-motion');
+  setStyle(NOTES[initial] ? initial : 'utility');
+</script>
+</body>
+</html>

@@ -61,3 +61,7 @@ DeepSeek API
 ```
 
 后端中转保护了 API Key，前端不直接暴露密钥。SSE 流式输出实现打字机效果和 AbortController 中途取消。
+
+## 架构总纲
+
+阶段计划、设计体系（纸感极简 / Paper）、前端骨架标准、后端分层、数据库 schema 与部署清单，见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。设计风格样片见 `docs/design/style-preview.html`。
