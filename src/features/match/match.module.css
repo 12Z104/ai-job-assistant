@@ -1,0 +1,198 @@
+/* features/match 领域件私有样式：只消费 tokens.css 变量，禁止 hex 与魔法间距。 */
+
+/* ---- ScoreRing ---- */
+.ringWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ringTrack {
+  stroke: var(--color-line);
+}
+
+.ringValue {
+  stroke: var(--color-accent);
+  /* 入场：描边从满环生长到目标值，1.15s（docs/ARCHITECTURE.md 第 3 章①）。
+     from 用 --ring-full（满环 offset），to 用内联 --ring-offset（目标 offset） */
+  stroke-dashoffset: var(--ring-offset);
+  animation: ringGrow 1.15s var(--ease-paper) backwards;
+}
+
+@keyframes ringGrow {
+  from {
+    stroke-dashoffset: var(--ring-full);
+  }
+}
+
+.ringCenter {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.ringScore {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-title);
+  color: var(--color-ink);
+}
+
+.ringLabel {
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  color: var(--color-ink-3);
+}
+
+/* ---- DimensionBars ---- */
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 4.5em 1fr 2.5em;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.barLabel {
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+}
+
+.barTrack {
+  display: block;
+  height: 4px; /* 规格线宽 4（docs/ARCHITECTURE.md 第 3 章①），与分数环同源 */
+  background: var(--color-line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  width: var(--bar-width);
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: var(--radius-sm);
+  /* 入场：宽度从 0 生长到目标值，900ms，逐项错峰由 --bar-delay 控制 */
+  animation: barGrow 900ms var(--ease-paper) backwards;
+  animation-delay: var(--bar-delay);
+}
+
+@keyframes barGrow {
+  from {
+    width: 0%;
+  }
+}
+
+.barValue {
+  font-size: var(--text-xs);
+  text-align: right;
+  color: var(--color-ink-2);
+}
+
+/* ---- ResumeList ---- */
+.listToolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.listRow {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.listRow:last-child {
+  border-bottom: none;
+}
+
+.listItem {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-h-lg);
+  padding: var(--space-2) var(--space-2);
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-paper);
+}
+
+.listItem:hover {
+  background: var(--color-surface-2);
+}
+
+.listItemActive {
+  background: var(--color-accent-soft);
+}
+
+.listIcon {
+  flex: none;
+  color: var(--color-ink-3);
+}
+
+.listMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.listTitle {
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listMeta {
+  font-size: var(--text-xs);
+  color: var(--color-ink-3);
+}
+
+.listDelete {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-md);
+  border: none;
+  border-left: 1px solid transparent;
+  background: transparent;
+  color: var(--color-ink-3);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-paper);
+}
+
+.listDelete:hover {
+  color: var(--color-danger);
+}
+
+.modalText {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--color-ink-2);
+}
