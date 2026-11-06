@@ -1,0 +1,36 @@
+/* features/rewrite 领域件私有样式：只消费 tokens.css 变量，禁止 hex 与魔法间距。 */
+
+.diffBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.diffParagraph {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--leading-long);
+  color: var(--color-ink);
+}
+
+/* 行内改写标记：底色 + 细下划线，禁止大色块（docs/ARCHITECTURE.md 第 3 章①） */
+.markPolish,
+.markSuggest {
+  border-radius: var(--radius-sm);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.markPolish {
+  background: var(--mark-polish-soft);
+  color: var(--mark-polish);
+  text-decoration-color: var(--mark-polish);
+}
+
+.markSuggest {
+  background: var(--mark-suggest-soft);
+  color: var(--mark-suggest);
+  text-decoration-color: var(--mark-suggest);
+}

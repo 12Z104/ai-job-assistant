@@ -1,0 +1,59 @@
+/* 简历优化 Agent 页：只消费 tokens 变量，只管组装层的排版 */
+
+.page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+}
+
+.leftStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.leftActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.hint {
+  font-size: var(--text-xs);
+  color: var(--color-ink-3);
+}
+
+/* 右栏：修改方案输出 */
+.adviceList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adviceItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.adviceItem:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.adviceTitle {
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+}
+
+.adviceDesc {
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+  color: var(--color-ink-2);
+}
