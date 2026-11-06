@@ -1,0 +1,66 @@
+/* 登录页私有样式（issue #44）。只消费 tokens 变量；静止态无阴影。 */
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-7) var(--space-5);
+  background-color: var(--color-bg);
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.brand {
+  font-size: var(--text-xl);
+}
+
+.slogan {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--color-ink-2);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.error {
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+  color: var(--color-danger);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.note {
+  margin: 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+  color: var(--color-ink-3);
+  text-align: center;
+}

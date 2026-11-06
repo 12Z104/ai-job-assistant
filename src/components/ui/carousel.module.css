@@ -1,0 +1,97 @@
+/* 轮播（Carousel）私有样式：白卡 + 1px 细线 + 2px 圆角，无阴影。只消费 tokens 变量。 */
+
+.root {
+  min-width: 0;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  color: var(--color-ink);
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  margin-top: var(--space-1);
+  color: var(--color-accent);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--text-lg);
+  color: var(--color-ink);
+}
+
+.desc {
+  max-width: 640px;
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-long);
+  color: var(--color-ink-2);
+}
+
+/* 右侧技术注释：等宽、弱化，只做「一眼看到细节」的密度补充 */
+.note {
+  flex: none;
+  margin: 0 0 0 auto;
+  padding-left: var(--space-5);
+  border-left: 1px solid var(--color-line);
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 2;
+  letter-spacing: 0.02em;
+  color: var(--color-ink-3);
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .card {
+    align-items: flex-start;
+    padding: var(--space-4);
+  }
+
+  .note {
+    display: none;
+  }
+}
+
+/* ---- 圆点：antd 默认用白点（浅底不可见），改为细线 / 墨绿 ---- */
+.root :global(.ant-carousel .slick-dots) {
+  position: static;
+  margin-top: var(--space-4);
+}
+
+.root :global(.ant-carousel .slick-dots li button) {
+  background: var(--color-line-strong);
+  opacity: 1;
+  transition: background var(--dur-base) var(--ease-paper);
+}
+
+.root :global(.ant-carousel .slick-dots li button:hover),
+.root :global(.ant-carousel .slick-dots li button:focus-visible) {
+  background: var(--color-ink-3);
+  opacity: 1;
+}
+
+.root :global(.ant-carousel .slick-dots li.slick-active button) {
+  background: var(--color-accent);
+  opacity: 1;
+}
+
+/* 关闭 antd 的进度条填充动画：与纸感极简的静态细条冲突 */
+.root :global(.ant-carousel .slick-dots li.slick-active::after) {
+  display: none;
+}

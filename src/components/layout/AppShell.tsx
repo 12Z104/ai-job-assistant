@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { BarChart3, Bot, Home, Mic, PenLine, Settings } from 'lucide-react'
+import { BarChart3, Bot, Home, Menu, Mic, PenLine, Settings } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { Drawer } from '../ui'
 import s from './layout.module.css'
 
 interface NavItem {
@@ -21,8 +23,11 @@ const navItems: NavItem[] = [
 
 /**
  * L2 结构件：顶栏 + 导航 + 内容区。不含业务数据，页面经 <Outlet> 注入。
+ * <768px 时主导航折叠为右侧抽屉，避免 6 项导航在窄屏横向溢出。
  */
 export function AppShell() {
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <div className={s.shell}>
       <header className={s.topbar}>
@@ -46,8 +51,56 @@ export function AppShell() {
               </NavLink>
             ))}
           </nav>
+          <NavLink to="/login" className={s.loginLink}>
+            登录
+          </NavLink>
+          <button
+            type="button"
+            className={s.menuBtn}
+            aria-label="打开导航菜单"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(true)}
+          >
+            <Menu size={18} strokeWidth={1.5} aria-hidden="true" />
+          </button>
         </div>
       </header>
+
+      <Drawer
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        placement="right"
+        width="78%"
+        title="导航"
+      >
+        <nav className={s.mobileNav} aria-label="主导航（窄屏）">
+          {navItems.map(({ to, label, icon: Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              onClick={() => setMenuOpen(false)}
+              className={({ isActive }) =>
+                `${s.mobileNavItem} ${isActive ? s.mobileNavItemActive : ''}`
+              }
+            >
+              <Icon size={16} strokeWidth={1.5} aria-hidden="true" />
+              {label}
+            </NavLink>
+          ))}
+          <NavLink
+            to="/login"
+            onClick={() => setMenuOpen(false)}
+            className={({ isActive }) =>
+              `${s.mobileNavItem} ${isActive ? s.mobileNavItemActive : ''}`
+            }
+          >
+            <Settings size={16} strokeWidth={1.5} aria-hidden="true" />
+            登录 / 账号
+          </NavLink>
+        </nav>
+      </Drawer>
+
       <main className={s.main}>
         <Outlet />
       </main>

@@ -12,6 +12,7 @@ const RewritePage = lazy(() => import('../pages/RewritePage'))
 const AgentPage = lazy(() => import('../pages/AgentPage'))
 const InterviewPage = lazy(() => import('../pages/InterviewPage'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'))
+const LoginPage = lazy(() => import('../pages/LoginPage'))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
 
 function Page({ component: PageComponent }: { component: ComponentType }) {
@@ -29,6 +30,15 @@ function Page({ component: PageComponent }: { component: ComponentType }) {
 }
 
 export const router = createBrowserRouter([
+  // 登录页独立于 AppShell：不显示主导航，整屏居中（issue #44）
+  {
+    path: '/login',
+    element: (
+      <ErrorBoundary>
+        <Page component={LoginPage} />
+      </ErrorBoundary>
+    ),
+  },
   {
     path: '/',
     element: (

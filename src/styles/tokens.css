@@ -29,6 +29,7 @@
   --font-title: "Songti SC", Georgia, serif;
   --font-body: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-num: Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
 
   /* ---- 字号阶梯（只准这 7 档，hero 仅落地页可用） ---- */
   --text-xs: 12px;

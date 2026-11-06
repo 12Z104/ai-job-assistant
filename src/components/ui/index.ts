@@ -5,6 +5,8 @@
 export { Button } from './Button'
 export { Input, Textarea } from './Input'
 export { Card } from './Card'
+export { Carousel } from './Carousel'
+export type { CarouselItem } from './Carousel'
 export { Tag } from './Tag'
 export { Field } from './Field'
 export { Modal } from './Modal'
