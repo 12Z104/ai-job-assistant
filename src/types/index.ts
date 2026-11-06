@@ -5,6 +5,8 @@ export interface Resume {
   modifiedContent?: string
   suggestNotes?: string
   createTime: number
+  /** 最近一次写入时间（数据层迁移与多份记录排序用；issue #42 补充，创建时 = createTime） */
+  updatedAt: number
 }
 
 export interface JobJD {
@@ -14,6 +16,8 @@ export interface JobJD {
   rawText: string
   requireSkills: string[]
   createTime: number
+  /** 最近一次写入时间（数据层迁移与多份记录排序用；issue #42 补充，创建时 = createTime） */
+  updatedAt: number
 }
 
 export interface LLMMessage {
