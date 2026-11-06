@@ -1,32 +1,33 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Lock, Mail } from 'lucide-react'
+import { Lock, Smartphone } from 'lucide-react'
 import { Button, Field, Input, useToast } from '../components/ui'
 import s from './LoginPage.module.css'
 
 /**
  * 登录页壳（issue #44）：只做表单与校验，不建立登录态、不写任何存储。
- * 真实认证在 V1.5 P6（issue #40）接入，届时替换 handleSubmit 里的登录桩。
+ * 账号载体为手机号（11 位大陆号）；真实认证在 V1.5 P6（issue #40）接入，
+ * 届时替换 handleSubmit 里的登录桩，可能追加短信验证码登录。
  */
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PHONE_PATTERN = /^1[3-9]\d{9}$/
 const PASSWORD_MIN = 8
 /** 登录桩延迟：仅用于暴露按钮 loading 态，P6 接真实接口时删除。 */
 const STUB_DELAY_MS = 600
 
 interface FormErrors {
-  email: string
+  phone: string
   password: string
 }
 
-function validate(email: string, password: string): FormErrors {
-  const errors: FormErrors = { email: '', password: '' }
-  const trimmedEmail = email.trim()
+function validate(phone: string, password: string): FormErrors {
+  const errors: FormErrors = { phone: '', password: '' }
+  const trimmedPhone = phone.replace(/\s/g, '')
 
-  if (!trimmedEmail) {
-    errors.email = '请输入邮箱'
-  } else if (!EMAIL_PATTERN.test(trimmedEmail)) {
-    errors.email = '邮箱格式不正确'
+  if (!trimmedPhone) {
+    errors.phone = '请输入手机号'
+  } else if (!PHONE_PATTERN.test(trimmedPhone)) {
+    errors.phone = '手机号格式不正确'
   }
 
   if (!password) {
@@ -48,18 +49,18 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const toast = useToast()
 
-  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
-  const [errors, setErrors] = useState<FormErrors>({ email: '', password: '' })
+  const [errors, setErrors] = useState<FormErrors>({ phone: '', password: '' })
   const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (submitting) return
 
-    const nextErrors = validate(email, password)
+    const nextErrors = validate(phone, password)
     setErrors(nextErrors)
-    if (nextErrors.email || nextErrors.password) return
+    if (nextErrors.phone || nextErrors.password) return
 
     setSubmitting(true)
     await wait(STUB_DELAY_MS)
@@ -77,24 +78,26 @@ export default function LoginPage() {
         </header>
 
         <form className={s.form} onSubmit={handleSubmit} noValidate>
-          <Field label="邮箱" required>
+          <Field label="手机号" required>
             <Input
-              type="email"
-              value={email}
+              type="tel"
+              inputMode="numeric"
+              maxLength={11}
+              value={phone}
               onChange={(event) => {
-                setEmail(event.target.value)
-                setErrors((prev) => ({ ...prev, email: '' }))
+                setPhone(event.target.value.replace(/\D/g, ''))
+                setErrors((prev) => ({ ...prev, phone: '' }))
               }}
-              prefix={<Mail size={14} strokeWidth={1.5} aria-hidden="true" />}
-              placeholder="you@example.com"
-              autoComplete="email"
-              status={errors.email ? 'error' : undefined}
-              aria-invalid={Boolean(errors.email)}
-              aria-describedby={errors.email ? 'login-email-error' : undefined}
+              prefix={<Smartphone size={14} strokeWidth={1.5} aria-hidden="true" />}
+              placeholder="11 位手机号"
+              autoComplete="tel"
+              status={errors.phone ? 'error' : undefined}
+              aria-invalid={Boolean(errors.phone)}
+              aria-describedby={errors.phone ? 'login-phone-error' : undefined}
             />
-            {errors.email && (
-              <span id="login-email-error" className={s.error} role="alert">
-                {errors.email}
+            {errors.phone && (
+              <span id="login-phone-error" className={s.error} role="alert">
+                {errors.phone}
               </span>
             )}
           </Field>
