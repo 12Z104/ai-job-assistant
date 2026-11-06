@@ -1,0 +1,29 @@
+/* 404 页私有样式。只消费 tokens 变量。 */
+
+.page {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-5);
+}
+
+.backRow {
+  margin: var(--space-4) 0 0;
+  text-align: center;
+  font-size: var(--text-sm);
+}
+
+.backLink {
+  color: var(--color-accent);
+  border-bottom: 1px solid var(--color-line-strong);
+  transition: border-color var(--dur-fast) var(--ease-paper);
+}
+
+.backLink:hover {
+  border-color: var(--color-accent);
+}
+
+@media (max-width: 479px) {
+  .page {
+    padding: var(--space-6) var(--space-4);
+  }
+}

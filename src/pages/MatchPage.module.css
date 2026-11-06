@@ -1,4 +1,4 @@
-/* 匹配分析页容器：与 ComingSoon / Settings 共用同一套页面内边距（内联样式收口到此） */
+/* 页面容器：全站统一内边距（各页自持 .page，<768px 收窄见文末媒体查询） */
 .page {
   max-width: var(--content-max);
   margin: 0 auto;
@@ -6,12 +6,6 @@
 }
 
 /* MatchPage 页面级布局：只消费 tokens 变量，只管组装层的排版。 */
-
-.page {
-  max-width: var(--content-max);
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-5) var(--space-7);
-}
 
 .centerStack,
 .rightStack {
@@ -29,6 +23,7 @@
 .editorActions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-3);
 }
 
@@ -70,10 +65,18 @@
   font-size: var(--text-sm);
   line-height: var(--leading-body);
   color: var(--color-ink-2);
+  /* 长英文 / URL 不撑破结果卡 */
+  overflow-wrap: anywhere;
 }
 
 .gapIcon {
   flex: none;
   margin-top: 3px;
   color: var(--color-warning);
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
 }

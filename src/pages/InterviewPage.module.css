@@ -1,0 +1,141 @@
+/* 模拟面试页：只消费 tokens 变量，只管组装层的排版（与 MatchPage 同一收口方式） */
+
+.page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+}
+
+/* ---- 左栏：面试设置 ---- */
+.settingStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.settingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settingLabel {
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  color: var(--color-ink-2);
+}
+
+/* Tag 组：窄屏自动换行，不允许横向溢出 */
+.tagWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.settingActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.hint {
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+  color: var(--color-ink-3);
+}
+
+/* ---- 主区：对话流 ---- */
+.chatStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* 消息区自身上限内滚动：页面高度不随对话轮次无限增长 */
+.chatScroll {
+  max-height: 56vh;
+  min-height: 240px;
+  overflow-y: auto;
+  padding-right: var(--space-1);
+}
+
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pendingRow {
+  font-size: var(--text-xs);
+  color: var(--color-ink-3);
+}
+
+.closedHint {
+  font-size: var(--text-xs);
+  color: var(--color-ink-3);
+}
+
+/* ---- 结果条（面试已结束） ---- */
+.resultBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+
+.scoreRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+}
+
+.scoreItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.scoreValue {
+  font-size: var(--text-lg);
+  line-height: var(--leading-title);
+  color: var(--color-ink);
+}
+
+.scoreLabel {
+  font-size: var(--text-xs);
+  color: var(--color-ink-3);
+}
+
+.resultSummary {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--color-ink-2);
+}
+
+.resultNote {
+  font-size: var(--text-xs);
+  color: var(--color-ink-3);
+}
+
+/* ---- 断点 ---- */
+@media (max-width: 767px) {
+  .page {
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+
+  .chatScroll {
+    max-height: 50vh;
+    min-height: 200px;
+  }
+
+  .scoreRow {
+    gap: var(--space-4);
+  }
+}

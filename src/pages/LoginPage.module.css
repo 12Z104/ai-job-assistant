@@ -64,3 +64,13 @@
   color: var(--color-ink-3);
   text-align: center;
 }
+
+@media (max-width: 479px) {
+  .page {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .card {
+    padding: var(--space-5);
+  }
+}

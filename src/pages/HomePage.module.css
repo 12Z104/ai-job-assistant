@@ -92,6 +92,7 @@
   font-size: var(--text-sm);
   line-height: var(--leading-body);
   color: var(--color-ink-2);
+  overflow-wrap: anywhere;
 }
 
 .cardHint {
@@ -108,4 +109,21 @@
 
 .techTitle {
   margin-bottom: var(--space-4);
+}
+
+@media (max-width: 767px) {
+  .home {
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+
+  .hero {
+    margin-bottom: var(--space-5);
+  }
+}
+
+@media (max-width: 479px) {
+  /* 窄屏把 hero 从 38px 降到 32px，避免三行以上折行 */
+  .heroTitle {
+    font-size: var(--text-2xl);
+  }
 }

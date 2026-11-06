@@ -157,6 +157,21 @@
   }
 }
 
+/* 768–1023：导航仍横排但空间紧张，收紧间距避免出现横向滚动 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .topbarInner {
+    gap: var(--space-3);
+  }
+
+  .nav {
+    gap: 0;
+  }
+
+  .navItem {
+    padding: var(--space-1) var(--space-2);
+  }
+}
+
 .main {
   flex: 1;
 }

@@ -8,10 +8,7 @@ import s from './SettingsPage.module.css'
  */
 export default function SettingsPage() {
   return (
-    <div
-      className="rise"
-      style={{ maxWidth: 720, margin: '0 auto', padding: 'var(--space-6) var(--space-5) var(--space-7)' }}
-    >
+    <div className={`rise ${s.page}`}>
       <PageHeader title="设置" desc="账号与数据管理将在 V1.5 P6 接入（issue #40）" />
 
       <Card title="基础件样例（P1 验收用，P3 移除）">
@@ -44,7 +41,7 @@ export default function SettingsPage() {
           <div className={s.row}>
             <Spinner />
             <Skeleton.Input active size="small" />
-            <Skeleton.Node active style={{ width: 120, height: 28 }} />
+            <Skeleton.Avatar active size="small" />
           </div>
         </div>
       </Card>
