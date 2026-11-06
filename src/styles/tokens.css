@@ -1,0 +1,79 @@
+/**
+ * 设计 token —— 全站唯一色值与几何来源。
+ * 规范真源：docs/ARCHITECTURE.md 第 3 章①（纸感极简 / Paper）。
+ * 约束：组件内禁止出现 hex 色值与魔法间距；一切通过这里的变量消费。
+ * 注意：src/styles/antd-theme.ts 中的同名色值必须与本文件同步修改（同一 PR）。
+ */
+:root {
+  /* ---- 色彩 ---- */
+  --color-bg: #f7f6f1;            /* 页面底：暖白纸面 */
+  --color-surface: #ffffff;       /* 卡片 */
+  --color-surface-2: #fcfbf8;     /* 输入底 / 次级表面 */
+  --color-line: #e6e3d9;          /* 1px 细线：边框唯一来源 */
+  --color-line-strong: #d6d2c4;   /* 强调线 / hover 边框 */
+  --color-ink: #1a1a17;           /* 主文本：近墨黑（对白 16.4:1） */
+  --color-ink-2: #57544c;         /* 次要文本（对白 7.5:1） */
+  --color-ink-3: #767162;         /* 占位符 / 说明（对白 5.0:1，过 AA 下限） */
+  --color-accent: #2e5b4c;        /* 墨绿主色 */
+  --color-accent-hover: #254a3e;
+  --color-accent-soft: #e9efea;   /* 主色浅底：选中态 / 轻按钮 */
+  --mark-polish: #2f7d5b;         /* 改写标记：绿 = 润色（勿用语义色顶替） */
+  --mark-polish-soft: #eff5f1;
+  --mark-suggest: #b7791f;        /* 改写标记：黄 = 建议补充 */
+  --mark-suggest-soft: #faf3e6;
+  --color-danger: #b3403a;
+  --color-warning: #b7791f;
+  --color-info: #3e5f8a;
+
+  /* ---- 字体 ---- */
+  --font-title: "Songti SC", Georgia, serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-num: Georgia, "Times New Roman", serif;
+
+  /* ---- 字号阶梯（只准这 7 档，hero 仅落地页可用） ---- */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-hero: 38px;
+
+  /* ---- 行高 ---- */
+  --leading-title: 1.4;
+  --leading-body: 1.6;
+  --leading-long: 1.75;
+
+  /* ---- 间距（4 基数，禁止 5/10/15/18） ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* ---- 圆角（禁止 8/12/16） ---- */
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 4px;
+
+  /* ---- 阴影：静止态无阴影，仅浮层允许 ---- */
+  --shadow-overlay: 0 8px 24px rgba(46, 91, 76, 0.14);
+
+  /* ---- 控件高度 ---- */
+  --control-h-sm: 28px;
+  --control-h-md: 36px;
+  --control-h-lg: 44px;
+
+  /* ---- 布局 ---- */
+  --topbar-h: 56px;
+  --content-max: 1280px;
+
+  /* ---- 动效（慢、轻、有目的） ---- */
+  --ease-paper: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-enter: 650ms;
+}

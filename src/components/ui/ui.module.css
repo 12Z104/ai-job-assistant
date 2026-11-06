@@ -1,0 +1,99 @@
+/* ui 基础件的私有样式：Field / EmptyState / ErrorState。只消费 tokens 变量。 */
+
+/* ---- Field ---- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+  letter-spacing: 0.04em;
+}
+
+.labelReq {
+  color: var(--color-danger);
+}
+
+.hint {
+  font-size: var(--text-xs);
+  color: var(--color-ink-3);
+  line-height: var(--leading-body);
+}
+
+/* ---- EmptyState ---- */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-7) var(--space-5);
+  color: var(--color-ink-3);
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-ink-2);
+}
+
+.emptyDesc {
+  margin: 0;
+  max-width: 360px;
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+  color: var(--color-ink-3);
+}
+
+.emptyAction {
+  margin-top: var(--space-3);
+}
+
+/* ---- ErrorState ---- */
+.errorIcon {
+  color: var(--color-danger);
+}
+
+/* ---- Spinner ---- */
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- Tag ---- */
+.tag {
+  margin-inline-end: 0;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  line-height: 20px;
+  padding: 0 var(--space-2);
+}
+
+.tagNeutral {
+  color: var(--color-ink-2);
+  background: var(--color-surface);
+  border-color: var(--color-line);
+}
+
+.tagPolish {
+  color: var(--mark-polish);
+  background: var(--mark-polish-soft);
+  border-color: transparent;
+}
+
+.tagSuggest {
+  color: var(--mark-suggest);
+  background: var(--mark-suggest-soft);
+  border-color: transparent;
+}
+
+.tagDanger {
+  color: var(--color-danger);
+  background: var(--color-surface);
+  border-color: var(--color-danger);
+}

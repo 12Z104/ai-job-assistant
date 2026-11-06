@@ -1,0 +1,135 @@
+/* 结构布局组件（L2）私有样式：AppShell / PageHeader / SplitPane。只消费 tokens。 */
+
+/* ---- AppShell ---- */
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.topbarInner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-title);
+  font-size: var(--text-md);
+  letter-spacing: 0.06em;
+  font-weight: 400;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.brandMark {
+  width: 10px;
+  height: 10px;
+  background: var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+.nav {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) var(--ease-paper),
+    color var(--dur-fast) var(--ease-paper);
+}
+
+.navItem:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.navItemActive {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.main {
+  flex: 1;
+}
+
+.content {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+}
+
+/* ---- PageHeader ---- */
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.pageTitle {
+  font-size: var(--text-xl);
+}
+
+.pageDesc {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+}
+
+.pageActions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ---- SplitPane：三栏工作台，<1024px 折叠单栏 ---- */
+.split {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+  grid-template-columns: 280px minmax(0, 1fr) 320px;
+}
+
+.splitTwo {
+  grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.splitOne {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 1023px) {
+  .split,
+  .splitTwo,
+  .splitOne {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
