@@ -8,6 +8,9 @@ export function initSse(res) {
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
   res.setHeader('Cache-Control', 'no-cache')
   res.setHeader('Connection', 'keep-alive')
+  // 部署坑（ARCHITECTURE §7.2）：禁用 Nginx/Render 等反向代理的响应缓冲，
+  // 否则流被攒着不发，打字机效果变成"憋 20 秒一次性出"
+  res.setHeader('X-Accel-Buffering', 'no')
 }
 
 // 写一个统一事件。event 必须带 type 字段

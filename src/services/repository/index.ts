@@ -1,6 +1,6 @@
 import type { JdRepository, ResumeRepository } from './types'
-import { RepositoryError } from './types'
 import { LocalJdRepository, LocalResumeRepository } from './local'
+import { RemoteJdRepository, RemoteResumeRepository } from './remote'
 
 /** 数据源聚合入口，页面/feature 只 import 这一个对象 */
 export interface Repository {
@@ -10,27 +10,10 @@ export interface Repository {
 
 const dataSource: string = import.meta.env.VITE_DATA_SOURCE ?? 'local'
 
-/**
- * remote 桩实现（P5 接 Supabase 前占位）：
- * VITE_DATA_SOURCE=remote 时不允许页面静默拿到空数据，每个方法直接抛错暴露问题。
- */
-function createRemoteStub(): Repository {
-  const notImplemented = (): never => {
-    throw new RepositoryError('NOT_IMPLEMENTED', 'remote 数据源尚未实现（P5 接入 Supabase），请使用 VITE_DATA_SOURCE=local')
-  }
-  const stubRepository = {
-    list: notImplemented,
-    get: notImplemented,
-    create: notImplemented,
-    update: notImplemented,
-    remove: notImplemented,
-  }
-  return { resumes: stubRepository, jds: stubRepository }
-}
-
 function createRepository(): Repository {
   if (dataSource === 'remote') {
-    return createRemoteStub()
+    // P5：BFF 内存存储 / Supabase 由后端切换，前端只认同一套 HTTP 合同
+    return { resumes: new RemoteResumeRepository(), jds: new RemoteJdRepository() }
   }
   return {
     resumes: new LocalResumeRepository(),

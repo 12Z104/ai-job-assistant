@@ -26,6 +26,8 @@ export type RepositoryErrorCode =
   | 'NOT_FOUND'
   /** 存储里的数据无法按 JSON 解析：数据已损坏，不覆盖写回，向上抛给错误边界 */
   | 'STORAGE_CORRUPTED'
+  /** remote 数据源请求失败（断网 / 超时 / 后端 5xx）：可重试类错误 */
+  | 'REQUEST_FAILED'
 
 /**
  * 简历数据访问接口。
