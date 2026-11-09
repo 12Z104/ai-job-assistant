@@ -60,6 +60,16 @@
   overflow-wrap: anywhere;
 }
 
+/* 流式方案文本：保留换行，长英文不撑破卡片 */
+.streamText {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--color-ink-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 767px) {
   .page {
     padding: var(--space-5) var(--space-4) var(--space-6);

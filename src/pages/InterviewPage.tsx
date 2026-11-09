@@ -1,37 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { PageHeader, SplitPane } from '../components/layout'
-import { Button, Card, EmptyState, Tag } from '../components/ui'
+import { Button, Card, EmptyState, Tag, useToast } from '../components/ui'
 import { InterviewComposer, MessageBubble } from '../features/interview'
 import type { InterviewMessage } from '../features/interview'
+import { useStreaming } from '../hooks/useStreaming'
 import s from './InterviewPage.module.css'
 
-/* ------------------------------------------------------------------ *
- * 面试问题为静态示例：P4 接 SSE 后改为
- * 「开始面试 → POST /api/interview/start 拉首题」「每轮回答 → useStreaming
- * 订阅 /api/interview/answer 的追问流」。此处只用定时器模拟追问节奏，
- * 不伪造任何接口调用。
- * ------------------------------------------------------------------ */
 const DIRECTIONS = ['前端开发', '后端开发', '算法工程', '产品经理'] as const
 type Direction = (typeof DIRECTIONS)[number]
 
 const LEVELS = ['初级', '中级', '高级'] as const
 type Level = (typeof LEVELS)[number]
 
-const OPENING_QUESTION =
-  '你好，我是本次的面试官。先做个自我介绍吧：挑一段你最有成就感的项目经历，说清背景、你的动作和最终结果。'
-
-/* 三条预置追问，按轮次轮流取用 */
-const FOLLOW_UPS: readonly string[] = [
-  '这个项目里最大的技术难点是什么？你是怎么定位并解决的？',
-  '如果让你重做一次，你会改动哪一步？为什么？',
-  '你提到的优化有前后指标对比吗？具体是怎么测出来的？',
-]
-const FALLBACK_PROBE = '能再具体说说你在这个环节的做法吗？'
-
-/** 追问模拟延迟：P4 换成流式首 token 到达时间 */
-const REPLY_DELAY_MS = 800
-
-/* 结果条评分为静态示例，P4 由真实点评接口返回 */
+/* 结果条评分为静态示例（/api/ai/interview/summary 不在本期合同范围） */
 const RESULT_SCORES = [
   { label: '表达清晰', value: 76 },
   { label: '项目深度', value: 72 },
@@ -42,78 +23,81 @@ const RESULT_SUMMARY =
 
 type PageStatus = 'idle' | 'active' | 'finished'
 
-function pickFollowUp(index: number): string {
-  return FOLLOW_UPS[index % FOLLOW_UPS.length] ?? FALLBACK_PROBE
-}
-
 /**
  * AI 模拟面试页：左 面试设置 | 主区 对话流 + 输入区。
+ * 每轮回答走 useStreaming + POST /api/ai/interview/turn：携带全部历史
+ * messages（role/content），delta 文本实时渲染为面试官气泡，done 后落为正式消息。
  * 三态：未开始（EmptyState）/ 进行中（消息流 + 输入区）/ 已结束（结果条 + 只读历史）。
- * 页面只做组装与本地状态编排，不落库、不接真实接口（P4）。
  */
 export default function InterviewPage() {
+  const toast = useToast()
   const [direction, setDirection] = useState<Direction>(DIRECTIONS[0])
   const [level, setLevel] = useState<Level>(LEVELS[1])
   const [status, setStatus] = useState<PageStatus>('idle')
   const [messages, setMessages] = useState<InterviewMessage[]>([])
-  const [sending, setSending] = useState(false)
 
-  /** 追问模拟定时器：卸载与重新开始时统一清理 */
-  const timersRef = useRef<number[]>([])
-  /** 追问轮次游标 */
-  const followUpRef = useRef(0)
+  const interview = useStreaming('/api/ai/interview/turn')
+  const sending = interview.status === 'streaming'
+
+  /** 本轮回答是否待落袋：done 后把累积文本固化为一条 assistant 消息 */
+  const turnPendingRef = useRef(false)
   /** 消息自增序号：只保证会话内唯一，不参与持久化 */
   const seqRef = useRef(0)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    return () => {
-      timersRef.current.forEach((id) => window.clearTimeout(id))
-    }
-  }, [])
-
-  /* 新消息 / 追问提示出现后滚到底部（用户上滑时不做反向抢滚动） */
+  /* 新消息 / 流式增量出现后滚到底部（用户上滑时不做反向抢滚动） */
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
     el.scrollTop = el.scrollHeight
-  }, [messages, sending])
+  }, [messages, interview.text])
+
+  /* 回合终态收口：done → 追加面试官消息；error → toast 提示，不落半截消息 */
+  useEffect(() => {
+    if (!turnPendingRef.current) return
+    if (interview.status === 'done') {
+      turnPendingRef.current = false
+      if (interview.text) {
+        seqRef.current += 1
+        const content = interview.text
+        setMessages((prev) => [...prev, { id: `msg-${seqRef.current}`, role: 'assistant', content }])
+      }
+    } else if (interview.status === 'error' && interview.error) {
+      turnPendingRef.current = false
+      toast.error(`错误码 ${interview.error.code}：${interview.error.message}`)
+    }
+  }, [interview.status, interview.text, interview.error, toast])
 
   function nextId(): string {
     seqRef.current += 1
     return `msg-${seqRef.current}`
   }
 
-  function clearTimers() {
-    timersRef.current.forEach((id) => window.clearTimeout(id))
-    timersRef.current = []
-  }
-
+  /** 开始面试：messages 为空发起首轮，AI 流式输出开场问题 */
   function handleStart() {
-    clearTimers()
-    followUpRef.current = 0
-    setSending(false)
-    setMessages([{ id: nextId(), role: 'assistant', content: OPENING_QUESTION }])
+    setMessages([])
     setStatus('active')
+    turnPendingRef.current = true
+    void interview.start({ resumeText: '', jdText: '', messages: [] })
   }
 
+  /** 回答并请求下一轮追问：携带全部历史 messages，保持多轮上下文 */
   function handleSend(content: string) {
     if (status !== 'active' || sending) return
-    setMessages((prev) => [...prev, { id: nextId(), role: 'user', content }])
-    setSending(true)
-
-    const timer = window.setTimeout(() => {
-      const question = pickFollowUp(followUpRef.current)
-      followUpRef.current += 1
-      setMessages((prev) => [...prev, { id: nextId(), role: 'assistant', content: question }])
-      setSending(false)
-    }, REPLY_DELAY_MS)
-    timersRef.current.push(timer)
+    const userMessage: InterviewMessage = { id: nextId(), role: 'user', content }
+    const history = [...messages, userMessage]
+    setMessages(history)
+    turnPendingRef.current = true
+    void interview.start({
+      resumeText: '',
+      jdText: '',
+      messages: history.map((message) => ({ role: message.role, content: message.content })),
+    })
   }
 
   function handleFinish() {
-    clearTimers()
-    setSending(false)
+    if (sending) interview.stop()
+    turnPendingRef.current = false
     setStatus('finished')
   }
 
@@ -174,7 +158,7 @@ export default function InterviewPage() {
               <span className={s.hint}>
                 {locked
                   ? `进行中：${direction} · ${level}，设置已锁定`
-                  : 'P4 接入后，岗位方向与难度将作为出题参数'}
+                  : '岗位方向与难度暂未进入请求合同，扩展后作为出题参数'}
               </span>
             </div>
           </Card>
@@ -204,7 +188,7 @@ export default function InterviewPage() {
                     </div>
                     <p className={s.resultSummary}>{RESULT_SUMMARY}</p>
                     <span className={s.resultNote}>
-                      以上评分为静态示例，P4 接入真实点评后由接口返回。
+                      以上评分为静态示例，综合点评接口（interview/summary）待后续接入。
                     </span>
                   </div>
                 )}
@@ -216,7 +200,13 @@ export default function InterviewPage() {
                         <MessageBubble role={message.role} content={message.content} />
                       </li>
                     ))}
-                    {sending && <li className={s.pendingRow}>面试官正在追问…</li>}
+                    {/* 流式回合：增量文本实时渲染为面试官气泡；首 token 未到先给占位 */}
+                    {sending && interview.text && (
+                      <li>
+                        <MessageBubble role="assistant" content={interview.text} />
+                      </li>
+                    )}
+                    {sending && !interview.text && <li className={s.pendingRow}>面试官正在思考…</li>}
                   </ol>
                 </div>
 

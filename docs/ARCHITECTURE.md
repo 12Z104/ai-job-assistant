@@ -362,6 +362,7 @@ POST /api/ai/interview/summary  { sessionId? | messages[] }
 data: {"type":"meta","requestId":"...","model":"deepseek-chat","promptVersion":"analyze.v1"}
 data: {"type":"delta","text":"匹配"}
 data: {"type":"done","usage":{"prompt":812,"completion":430},"finishReason":"stop"}
+data: {"type":"done","usage":{...},"finishReason":"stop","result":{...}}  ← 仅 analyze：result 为后端 schema 校验后的结构化结果 { score, dimensions[], strengths[], gaps[], suggestions[] }；校验不通过则降级为纯文本 delta 流，done 不带 result
 data: {"type":"error","code":"UPSTREAM_TIMEOUT","message":"模型响应超时"}
 ```
 

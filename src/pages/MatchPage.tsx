@@ -1,30 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Briefcase, CircleAlert, Plus } from 'lucide-react'
+import { Briefcase, CircleAlert, CircleCheck, Lightbulb, Plus } from 'lucide-react'
 import { PageHeader, SplitPane } from '../components/layout'
-import { Button, Card, EmptyState, ErrorState, Field, Input, Skeleton, Tag, Textarea, useToast } from '../components/ui'
+import { Button, Card, EmptyState, ErrorState, Field, Input, Skeleton, Spinner, Tag, Textarea, useToast } from '../components/ui'
 import { repository, RepositoryError } from '../services/repository'
-import type { JobJD, Resume } from '../types'
+import { useStreaming } from '../hooks/useStreaming'
+import type { AnalyzeResult, JobJD, Resume } from '../types'
 import { DimensionBars, ResumeList, ScoreRing } from '../features/match'
-import type { DimensionItem } from '../features/match'
 import s from './MatchPage.module.css'
-
-/* ------------------------------------------------------------------ *
- * 结果区静态示例数据：P4 接 /api/analyze 后替换为真实分析数据。
- * 本区块为纯展示示例，不伪造接口调用。
- * ------------------------------------------------------------------ */
-const SAMPLE_SCORE = 78
-const SAMPLE_DIMENSIONS: DimensionItem[] = [
-  { label: '技能匹配', value: 82 },
-  { label: '经验相关', value: 74 },
-  { label: '项目深度', value: 80 },
-  { label: '表达清晰', value: 70 },
-]
-const SAMPLE_GAPS = [
-  '缺少量化成果：项目经历均未写可度量指标',
-  'JD 要求的 TypeScript 实战经验仅出现在课程作业',
-  '自我评价偏长，建议压缩到 3 行以内',
-]
 
 const RESUME_TITLE_MAX = 60
 const CONTENT_MAX = 20_000
@@ -82,6 +65,9 @@ export default function MatchPage() {
   const jdId = searchParams.get('jd')
   const selectedResume = resumes.find((item) => item.id === resumeId) ?? null
   const selectedJd = jds.find((item) => item.id === jdId) ?? null
+
+  /* AI 匹配分析流：请求/解析/取消/错误全部收口在 useStreaming，页面零 fetch */
+  const analysis = useStreaming<AnalyzeResult>('/api/ai/analyze')
 
   const resumeDraft: ResumeDraft | null = selectedResume
     ? resumeEdits && resumeEdits.id === selectedResume.id
@@ -259,6 +245,23 @@ export default function MatchPage() {
       setSavingJd(false)
     }
   }
+
+  /** 开始分析：用当前编辑草稿发起流式请求（未保存的修改也参与分析） */
+  function handleAnalyze() {
+    if (!resumeDraft || !jdDraft) return
+    if (!resumeDraft.content.trim()) {
+      toast.error('请先填写简历正文再开始分析')
+      return
+    }
+    if (!jdDraft.content.trim()) {
+      toast.error('请先填写 JD 正文再开始分析')
+      return
+    }
+    void analysis.start({ resumeText: resumeDraft.content, jdText: jdDraft.content })
+  }
+
+  /* 结构化结果可分析性：简历 + JD 齐备即可发起 */
+  const canAnalyze = resumeDraft !== null && jdDraft !== null
 
   /* ---- 三态：加载 ---- */
   if (loading) {
@@ -456,22 +459,105 @@ export default function MatchPage() {
         right={
           <div className={s.rightStack}>
             <Card title="匹配结果">
-              {/* P4 接 /api/analyze 后替换为真实分析数据 */}
-              <div className={s.resultTop}>
-                <ScoreRing score={SAMPLE_SCORE} label="综合匹配" />
+              {/* 操作行：流式进行中切换为「停止生成」，其余时候是「开始分析」 */}
+              <div className={s.editorActions}>
+                {analysis.status === 'streaming' ? (
+                  <>
+                    <Button onClick={analysis.stop}>停止生成</Button>
+                    <span className={s.dirtyHint}>正在流式生成…</span>
+                  </>
+                ) : (
+                  <Button type="primary" disabled={!canAnalyze} onClick={handleAnalyze}>
+                    开始分析
+                  </Button>
+                )}
               </div>
-              <div className={s.resultDivider} />
-              <DimensionBars items={SAMPLE_DIMENSIONS} />
-              <div className={s.resultDivider} />
-              <span className="section-title">差距清单</span>
-              <ul className={s.gapList}>
-                {SAMPLE_GAPS.map((gap) => (
-                  <li key={gap} className={s.gapItem}>
-                    <CircleAlert size={14} strokeWidth={1.5} aria-hidden="true" className={s.gapIcon} />
-                    <span>{gap}</span>
-                  </li>
+
+              {/* ---- 状态：错误（SSE error 事件 / 网络失败 → code + message + 重试） ---- */}
+              {analysis.status === 'error' && analysis.error && (
+                <ErrorState
+                  title="分析失败"
+                  desc={`错误码 ${analysis.error.code}：${analysis.error.message}`}
+                  onRetry={handleAnalyze}
+                />
+              )}
+
+              {/* ---- 状态：空 ---- */}
+              {analysis.status === 'idle' && (
+                <EmptyState
+                  title="还没有分析结果"
+                  desc={canAnalyze ? '点击「开始分析」，AI 将流式输出匹配分析。' : '先在中间栏填写简历与 JD。'}
+                />
+              )}
+
+              {/* ---- 降级路径：done.result 缺失（后端 schema 校验不过回纯文本流）或流式推进中 ---- */}
+              {(analysis.status === 'streaming' || (analysis.status === 'done' && !analysis.result)) &&
+                (analysis.text ? (
+                  <p className={s.streamText}>{analysis.text}</p>
+                ) : (
+                  <div className={s.resultTop}>
+                    <Spinner label="正在等待模型响应" />
+                  </div>
                 ))}
-              </ul>
+
+              {/* ---- 结构化结果落地：score / dimensions 驱动现有可视化组件 ---- */}
+              {analysis.status === 'done' && analysis.result && (
+                <>
+                  <div className={s.resultTop}>
+                    <ScoreRing score={analysis.result.score} label="综合匹配" />
+                  </div>
+                  {analysis.result.dimensions.length > 0 && (
+                    <>
+                      <div className={s.resultDivider} />
+                      <DimensionBars
+                        items={analysis.result.dimensions.map((d) => ({ label: d.name, value: d.score }))}
+                      />
+                    </>
+                  )}
+                  {analysis.result.strengths.length > 0 && (
+                    <>
+                      <div className={s.resultDivider} />
+                      <span className="section-title">亮点</span>
+                      <ul className={s.gapList}>
+                        {analysis.result.strengths.map((item) => (
+                          <li key={item} className={s.gapItem}>
+                            <CircleCheck size={14} strokeWidth={1.5} aria-hidden="true" className={s.goodIcon} />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                  {analysis.result.gaps.length > 0 && (
+                    <>
+                      <div className={s.resultDivider} />
+                      <span className="section-title">差距清单</span>
+                      <ul className={s.gapList}>
+                        {analysis.result.gaps.map((gap) => (
+                          <li key={gap} className={s.gapItem}>
+                            <CircleAlert size={14} strokeWidth={1.5} aria-hidden="true" className={s.gapIcon} />
+                            <span>{gap}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                  {analysis.result.suggestions.length > 0 && (
+                    <>
+                      <div className={s.resultDivider} />
+                      <span className="section-title">建议</span>
+                      <ul className={s.gapList}>
+                        {analysis.result.suggestions.map((item) => (
+                          <li key={item} className={s.gapItem}>
+                            <Lightbulb size={14} strokeWidth={1.5} aria-hidden="true" className={s.tipIcon} />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </>
+              )}
             </Card>
           </div>
         }

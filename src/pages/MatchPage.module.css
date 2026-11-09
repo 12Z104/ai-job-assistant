@@ -75,6 +75,29 @@
   color: var(--color-warning);
 }
 
+/* 亮点 / 建议清单图标：沿用 gapList 版式，图标色走 token */
+.goodIcon {
+  flex: none;
+  margin-top: 3px;
+  color: var(--color-accent);
+}
+
+.tipIcon {
+  flex: none;
+  margin-top: 3px;
+  color: var(--color-accent);
+}
+
+/* 无结构化结果时的降级纯文本 / 流式推进中的增量文本 */
+.streamText {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--color-ink-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 767px) {
   .page {
     padding: var(--space-5) var(--space-4) var(--space-6);
