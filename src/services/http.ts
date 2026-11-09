@@ -34,7 +34,8 @@ function linkSignal(external: AbortSignal | undefined, timeoutMs: number): {
   dispose: () => void
 } {
   const controller = new AbortController()
-  const timer = window.setTimeout(() => controller.abort(new DOMException('请求超时', 'TimeoutError')), timeoutMs)
+  // 裸 setTimeout/clearTimeout：浏览器与 node 测试环境均可用（window 在 vitest node 环境不存在）
+  const timer = setTimeout(() => controller.abort(new DOMException('请求超时', 'TimeoutError')), timeoutMs)
   const onExternalAbort = () => controller.abort(external?.reason)
   if (external) {
     if (external.aborted) {
@@ -46,7 +47,7 @@ function linkSignal(external: AbortSignal | undefined, timeoutMs: number): {
   return {
     signal: controller.signal,
     dispose: () => {
-      window.clearTimeout(timer)
+      clearTimeout(timer)
       external?.removeEventListener('abort', onExternalAbort)
     },
   }
@@ -109,20 +110,21 @@ function getDeviceId(): string {
 }
 
 /**
- * 非流式 POST：成功解析 {data,meta}，失败抛 HttpError。
- * 本期业务端点均为 SSE，此封装服务于健康检查等普通接口与未来非流式场景。
+ * 通用非流式请求：成功解析 {data,meta}，失败抛 HttpError。
+ * postJson / getJson / patchJson / deleteJson 均为本方法的语义化包装。
  */
-export async function postJson<T>(
+async function requestJson<T>(
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   path: string,
-  body: unknown,
+  body?: unknown,
   options?: { signal?: AbortSignal; timeoutMs?: number },
 ): Promise<ApiEnvelope<T>> {
   const link = linkSignal(options?.signal, options?.timeoutMs ?? DEFAULT_TIMEOUT_MS)
   try {
     const response = await fetch(path, {
-      method: 'POST',
+      method,
       headers: jsonHeaders(),
-      body: JSON.stringify(body),
+      body: body === undefined ? undefined : JSON.stringify(body),
       signal: link.signal,
     })
     if (!response.ok) {
@@ -134,6 +136,37 @@ export async function postJson<T>(
   } finally {
     link.dispose()
   }
+}
+
+/**
+ * 非流式 POST：成功解析 {data,meta}，失败抛 HttpError。
+ * 本期业务端点均为 SSE，此封装服务于健康检查等普通接口与未来非流式场景。
+ */
+export function postJson<T>(
+  path: string,
+  body: unknown,
+  options?: { signal?: AbortSignal; timeoutMs?: number },
+): Promise<ApiEnvelope<T>> {
+  return requestJson<T>('POST', path, body, options)
+}
+
+/** GET：remote 数据适配器的读取通道 */
+export function getJson<T>(path: string, options?: { signal?: AbortSignal; timeoutMs?: number }): Promise<ApiEnvelope<T>> {
+  return requestJson<T>('GET', path, undefined, options)
+}
+
+/** PATCH：局部更新 */
+export function patchJson<T>(
+  path: string,
+  body: unknown,
+  options?: { signal?: AbortSignal; timeoutMs?: number },
+): Promise<ApiEnvelope<T>> {
+  return requestJson<T>('PATCH', path, body, options)
+}
+
+/** DELETE：幂等删除 */
+export function deleteJson<T>(path: string, options?: { signal?: AbortSignal; timeoutMs?: number }): Promise<ApiEnvelope<T>> {
+  return requestJson<T>('DELETE', path, undefined, options)
 }
 
 /**
